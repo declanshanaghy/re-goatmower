@@ -85,3 +85,45 @@ concrete recipe. Key facts (confirm each against the A3000; do not assume identi
 - [ ] Debug-header location/pinout on the A3000 board.
 - [ ] Serial length & which eco_passwd variant applies.
 - [ ] FCC ID (search FCC OET for "Ecovacs" / the model).
+
+---
+
+## CONFIRMED from the slide decks (downloaded locally, 2026-10-31)
+
+Decks pulled via Wayback (live site offline) into `dumps/dontvacuum/` (gitignored):
+`DEFCON32_ecovacs.pdf`, `HITCON2024.pdf` (87pp each), `37c3_mowing.pdf` (99pp).
+Record their SHA-256 in `docs/03-flash-layout.md` provenance table if you keep them.
+
+### eco_passwd — CONFIRMED (DEF CON 32 p75, identical HITCON 2024 p74)
+```
+password = base64( sha256( {model} + MAGIC + {sn} + "\n" ) )
+MAGIC    = d4:3d:7e:fa:12:5d:C8:02:8F:0A:E2:F5
+```
+- Set at boot by the obfuscated `eco_passwd` program; login shell is on UART.
+- `{model}` = firmware model/product string (`/etc/fw.manifest`; PX30 example = `AI_px30`).
+- base64-of-digest is ambiguous (raw bytes vs `sha256sum` text form). `tools/eco_passwd.py`
+  implements both + truncations (`--all`) — match one against the reference calculator/device.
+
+### Firmware/OTA encryption — CVE-2024-52331 (DEF CON 32 p76)
+- "Firmware is encrypted but **not signed**" → malicious OTA can root the device.
+- AES-128-CBC; IV+Key **dynamically computed** from a format string (RE'd with tihmstar):
+  ```
+  fmt = "vX2Z3X3RhcmdldCA%s1jdSAt%sbyBtYW4%dy5iaW4%s%x825xx%s"
+  args = ("ECO-PT", model, section_type, "", section_len, "jeff-hk@126.com")
+  ```
+  (Transcribe exact chars from the slide before implementing — OCR/extract may be imperfect.)
+
+### Hardware (Goat G1 — best A3000 proxy until FCC photos confirm)
+- SoC **Rockchip RK3588** (4xA76+4xA55, AI accel), 4 GB DDR4, **16 GB eMMC** flash,
+  multiple GD32 MCUs (display, knife assembly). (Older vacuums: RV1107/PX30/Horizon X3.)
+- Debug port "**similar for all models since 2019**": **UART + 3.3V + SWD + USB**. Some
+  units 180° rotated — check orientation. dm-verity protects rootfs on *some* models.
+- Persistence: `/data/autostart/*.sh` run as root at boot (disabled on some devices).
+- Other: mower anti-theft PIN stored **plaintext**; BLE always-on, static AES key
+  `12345678ecovacs`, BLE RCE demoed on Goat G1; HITCON p67 lists G1 OTA image MD5s+versions.
+
+### Practical consequence for dumping
+If the A3000 uses **eMMC** like the G1, a CH341A/SPI programmer **cannot** read it directly
+(that's for SPI-NOR). Non-destructive routes: Rockchip USB download/maskrom (`rkdeveloptool`)
+or U-Boot `ums`. True chip-off would need an **eMMC reader** (e.g. an eMMC-to-USB/SD adapter),
+not the SPI clip. Confirm flash type from FCC internal photos in Phase 0.
