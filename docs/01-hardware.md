@@ -3,7 +3,11 @@
 Fill from FCC internal photos first (no disassembly), then confirm on teardown.
 
 ## Identification
-- FCC ID: _TODO_
+- Manufacturer model code: **MR2507D** (per Coolblue listing) — use to match the FCC filing.
+- Variants exist: "A3000 LiDAR" and "A3000 LiDAR PRO" — FCC ID may differ; check which you have.
+- FCC ID: _TODO — read off the label in the battery bay / underside; then look up on fccid.io
+  (grantee lookup; fccid.io 403s automated fetches, so browse it manually). Internal photos in
+  the test-report exhibits give SoC/flash/debug-header without opening the case._
 - SoC: _TODO (expect Rockchip-class)_
 - RAM / flash (type + size): _TODO_
 - Lidar / sensors of interest: _TODO_
