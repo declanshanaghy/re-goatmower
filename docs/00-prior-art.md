@@ -79,12 +79,13 @@ concrete recipe. Key facts (confirm each against the A3000; do not assume identi
   binwalk → Ghidra. Transcript not yet captured (mirrors bot-gated). TODO: transcribe
   any extra tool tips here.
 
-## A3000-specific unknowns (fill in during execution)
-- [ ] SoC (PX30? RK-series? other) — from FCC internal photos.
-- [ ] Flash type (eMMC / NAND / SPI-NOR) and size.
-- [ ] Debug-header location/pinout on the A3000 board.
-- [ ] Serial length & which eco_passwd variant applies.
-- [ ] FCC ID (search FCC OET for "Ecovacs" / the model).
+## A3000-specific facts (from FCC internal photos — see docs/01-hardware.md)
+- [x] FCC ID **2A64B-MR2507C** (host); GOAT radio board **2A64B-GPL11**.
+- [x] SoC = **Horizon Robotics Sunrise 5 (X5)** (U1, board `MR2337_X5`) — NOT Rockchip.
+- [x] Flash = **BIWIN 8WCMA0011G16G** managed NAND/eMMC (U3); DRAM = CXMT (U2).
+- [x] Wi-Fi/BT = **Realtek RTL8733BS** (Fn-Link module).
+- [ ] Debug-header location/pinout — locate on teardown (UART+3V3+SWD+USB expected).
+- [ ] Serial (20-char) + firmware `model` string for eco_passwd.
 
 ---
 
@@ -122,8 +123,9 @@ MAGIC    = d4:3d:7e:fa:12:5d:C8:02:8F:0A:E2:F5
 - Other: mower anti-theft PIN stored **plaintext**; BLE always-on, static AES key
   `12345678ecovacs`, BLE RCE demoed on Goat G1; HITCON p67 lists G1 OTA image MD5s+versions.
 
-### Practical consequence for dumping
-If the A3000 uses **eMMC** like the G1, a CH341A/SPI programmer **cannot** read it directly
-(that's for SPI-NOR). Non-destructive routes: Rockchip USB download/maskrom (`rkdeveloptool`)
-or U-Boot `ums`. True chip-off would need an **eMMC reader** (e.g. an eMMC-to-USB/SD adapter),
-not the SPI clip. Confirm flash type from FCC internal photos in Phase 0.
+### Practical consequence for dumping (A3000 = Horizon, confirmed)
+A3000 SoC is **Horizon Sunrise 5**, not Rockchip, so `rkdeveloptool`/U-Boot `ums` are the
+wrong toolchain — use Horizon's boot ROM USB-download / U-Boot console. Its **BIWIN managed
+NAND/eMMC** flash means the **CH341A/SPI clip cannot read it** (SPI-NOR only); chip-off would
+need an eMMC/NAND reader. Precedent: Giese rooted a Horizon **X3**-based Ecovacs vacuum over
+**UART** (37c3), and `eco_passwd` is OS-level — the UART-root path carries over.

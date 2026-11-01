@@ -5,6 +5,15 @@
 |------|---------------|------|---------|
 | _TODO flash dump_ | rkdeveloptool / ums / chip-off | | |
 
+### FCC internal-photos exhibits downloaded
+| File (dumps/fcc/) | SHA-256 |
+|---|---|
+| 2A64BMR2507C/Internal-Photos.pdf | 62367f39dcb05561aab94a50be539dec2fae01ed56ebbe7327fb84ee344adc78 |
+| 2A64BGPL11/Internal-Photos-8211184.pdf | 174300c716cfc19ce855b4937439263061419e1e5f98ea06af061d5d54d6f04d |
+
+> Flash is BIWIN managed NAND/eMMC on a Horizon Sunrise 5 board — partition layout TBD
+> from the device (NOT the Rockchip PX30 table above, which is a different-SoC reference).
+
 ### Reference docs downloaded (slides, not flash dumps)
 | File (dumps/dontvacuum/) | SHA-256 |
 |---|---|
