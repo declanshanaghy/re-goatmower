@@ -1,0 +1,7 @@
+dumps/
+*.img
+*.bin
+__pycache__/
+.DS_Store
+*.pcap
+*.pcapng
