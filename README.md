@@ -4,6 +4,37 @@ Reverse-engineering the firmware of an **Ecovacs GOAT A3000 LiDAR** robot mower 
 analysis of my own hardware, for interoperability (local control, decoupling from the
 Ecovacs cloud) and security research.
 
+## Quickstart
+
+**Requirements:** Python 3.8+, git
+
+```bash
+git clone https://github.com/declanshanaghy/re-goatmower.git
+cd re-goatmower
+```
+
+Calculate the UART root password for your device (model string from `/etc/fw.manifest`,
+serial from the device label):
+
+```bash
+python3 tools/eco_passwd.py --model AI_px30 --serial YOUR_SERIAL_HERE
+```
+
+Pass `--all` to print every digest/truncation variant for comparison against the
+[reference calculator](https://builder.dontvacuum.me/ecopassword.php):
+
+```bash
+python3 tools/eco_passwd.py --model AI_px30 --serial YOUR_SERIAL_HERE --all
+```
+
+To carve a flash image once you have a dump (requires `binwalk`):
+
+```bash
+tools/extract.sh dumps/flash.img
+```
+
+Start reading the lab notebook at `docs/00-prior-art.md`.
+
 ## Why
 
 The A3000 is a 2025 model with no public teardown. Sibling Ecovacs devices (GOAT G1,
